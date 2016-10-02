@@ -1,0 +1,74 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 80%;
+    background-color: #ffffff;
+    
+}
+
+.logoinicial{
+	background-image:url("images/festisite_agentia.png");
+	margin-left: auto;
+    margin-right: auto;
+    margin-top:120px;
+    width: 450px;
+    height: 157px;
+    zoom:0.9;
+    -moz-transform: scale(0.9);
+}
+
+.logoencontrado{
+	background-image:url("images/festisite_agentia.png");
+	width: 450px;
+    height: 157px;
+    zoom:0.2;
+    -moz-transform: scale(0.2);
+}
+
+#formWrapper{
+	margin-left: auto;
+    margin-right: auto;
+    text-align: center;    
+}
+
+#busqueda{
+	width:550px;
+    padding: 2px;
+    border:solid 1px #F1F1F1;
+    background-color: #FFFFFF;
+    font-size: 20px;
+}
+
+.botones{
+	background-color: #f2f2f2;
+    border: 1px solid #f2f2f2;
+    border-radius: 2px;
+    color: #757575;
+    cursor: default;
+    font-family: arial,sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 11px 4px;
+    min-width: 54px;
+    padding: 10px;
+    text-align: center;
+}
+
+.encontrado{
+	margin: 11px 4px;
+}
+
+#sfbg{
+	background: rgba(200,200,200,0.15);
+    height: 50px;
+    left: 0;
+    width: 100%;
+    padding:10px;
+}
+
+.accordion-title{
+	font-size:12px;
+}
+
+#content{
+	margin: 30px;
+}
