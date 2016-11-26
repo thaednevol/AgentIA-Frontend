@@ -8,10 +8,6 @@
 <!--   <listener> -->
 <!--     <listener-class>co.edu.udistrital.ingesoft.SessionListener</listener-class> -->
 <!-- 	</listener> -->
-
-<welcome-file-list>
-    <welcome-file>buscar.jsp</welcome-file>
-  </welcome-file-list>
 	
 	  <servlet>
             <servlet-name>SearchCometServlet</servlet-name>

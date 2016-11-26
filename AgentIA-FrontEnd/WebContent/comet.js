@@ -20,6 +20,8 @@ function formSubmit(tipo) {
 		buscar(busqueda, "http://catalog.data.gov/");
 	} else if (tipo == 3) {
 		buscar(busqueda, "gobierno");
+	} else if (tipo == 4) {
+		buscar(busqueda, "educacion");
 	}
 }
 
@@ -57,16 +59,17 @@ function buscar(busqueda, tipo) {
 	 $.ajax({
          type:"POST",
          url: URL,
+         async:true,
          data: {notification:envio},
          success: function(data) {
         	 console.log("DATA DE AJAX: "+data);
         	 t1 = performance.now();
         	 
         	 console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
-//        	 
-//        	 refreshIntervalId=setInterval(function(){
-// 				buscarResultados(true);
-// 			}, 1000);
+        	 
+        	 refreshIntervalId=setInterval(function(){
+ 				buscarResultados(true);
+ 			}, 5000);
          } 
      }); 
 
@@ -76,21 +79,26 @@ function buscar(busqueda, tipo) {
 function buscarResultados(repeat) {
 	console.log("busca resultados");
 	$.ajax({
-		type:"GET",
 		url : URL,
 		cache : false, // cache must be false so that messages dont repeat
 		// themselves
-		dataType : 'json',
+		//dataType : 'json',
+		async:true,
 		success : function(data) {
 			console.log("PIDE DATOS "+data);
+			
+			$('#content').append(
+					'<div class="accordion-title"><p>' + data
+							+ '</p></div>');
+			
 
-			var obj = data;
-
-			for (i = 0; i < obj.length; i++) {
-				$('#content').append(
-						'<div class="accordion-title"><p>' + obj
-								+ '</p></div>');
-			}
+//			var obj = data;
+//
+//			for (i = 0; i < obj.length; i++) {
+//				$('#content').append(
+//						'<div class="accordion-title"><p>' + obj
+//								+ '</p></div>');
+//			}
 
 			// // when a request is complete a new one is started
 			// if (repeat) {
@@ -105,6 +113,9 @@ function buscarResultados(repeat) {
 		// when a request is complete a new one is started
 		error : function(a, b, c) {
 			console.log("clearInterval");
+			console.log(a);
+			console.log(b);
+			console.log(c);
 			clearInterval(refreshIntervalId);
 		}
 	});

@@ -8,14 +8,14 @@ import eu.trentorise.opendata.jackan.model.CkanDatasetBase;
 
 public class DataSetParser implements DataSetVisitadorInterface{
 
-	private CkanDatasetBase dataset;
+	private CkanDataset dataset;
 	
 	public void visit(MyCKANDataset ds) {
 		this.dataset=ds;
 	}
 	
 	public void visit(CkanJulian ds) {
-		CkanDatasetBase cks = new CkanDatasetBase();
+		CkanDataset cks = new CkanDataset();
 		JsonParser jsonParser = new JsonParser();
 		JsonObject jo = (JsonObject) jsonParser.parse(ds.getJsonObject());
 		
@@ -25,7 +25,7 @@ public class DataSetParser implements DataSetVisitadorInterface{
 	}
 	
 
-	public CkanDatasetBase getDataset() {
+	public CkanDataset getDataset() {
 		return dataset;
 	}
 	
