@@ -183,29 +183,17 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 			CKANGeografia ckanGeografia = new CKANGeografia();
 			
 			try {
-				ckanGeografia.queryOnRepository(busqueda);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			CKANQuery ckanq = new CKANQuery();
-			try {
-				String a = ckanq.queryOnRepository(busqueda);
-				List<CkanDataset> rtd = RestToCkan.parse(a);
-
+				String respuesta=ckanGeografia.queryOnRepository(busqueda);
+				List<CkanDataset> rtd = RestToCkan.parseGeografia(respuesta);
 				for (int i = 0; i < rtd.size(); i++) {
-					// sendMsg(username, rtd.get(i));
 					queue.offer(rtd.get(i));
 					System.out.println("AGREGA A LA COLA " + rtd.get(i).getId());
 				}
-			} catch (Exception ex) {
-				Logger.getLogger(CKANQuery.class.getName()).log(Level.SEVERE, null, ex);
+				
+			} catch (Exception e) {  
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-			
-			
-			
 		} else if (lugar.contains("gobierno")) {
 			// String BASE_DATASET_API = "https://datahub.io/dataset/";
 			// CkanClient cc = new CkanClient(BASE_DATASET_API);

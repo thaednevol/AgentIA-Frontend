@@ -32,81 +32,24 @@ import ws.WsConsulta_ServiceLocator;
  *
  * @author Normalito
  */
+@SuppressWarnings("unchecked")
 public class CKANGeografia {
 	
-	  private static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-	  
+	  private static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";  
 	  private int maxRank;
     
     public String queryOnRepository(String patternToSeach) throws Exception{
-//    	System.out.println("Llama queryOnRepository()");
-//    	WsConsultaProxy wsProxy = new WsConsultaProxy();
-//    	
-//    	String test = wsProxy.patterToSearch(patternToSeach);
-//    	
-//    	System.out.println("Prueba desde CKAN Gobierno");
-//    	System.out.println(test);
-//    
-    	InputStream inputStream = new FileInputStream("/tmp/json-ld.txt");
-    	
-    	parse(inputStream);
-    	
-    	Object jsonObject = JsonUtils.fromInputStream(inputStream);
-    	
-    	// Create a context JSON map containing prefixes and definitions
-    	Map context = new HashMap();
-    	// Customise context...
-    	// Create an instance of JsonLdOptions with the standard JSON-LD options
-    	JsonLdOptions options = new JsonLdOptions();
-    	// Customise options...
-    	// Call whichever JSONLD function you want! (e.g. compact)
-    	Object compact = JsonLdProcessor.compact(jsonObject, context, options);
-    	// Print out the result (or don't, it's your call!)
-    	//System.out.println(JsonUtils.toPrettyString(compact));
-
-    	System.out.println("RESPONSITA: "+jsonObject);
-    	
-    	return JsonUtils.toPrettyString(compact);
-    	
-//    	o=wsLocator.
-//    	
-//    	
-//        String url = URL+patternToSeach;
-//        URL obj = new URL(url);
-//        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-//        con.setRequestMethod("GET");
-//
-//        //add request header
-//        con.setRequestProperty("User-Agent", USER_AGENT);
-//
-//        int responseCode = con.getResponseCode();
-//        if (responseCode != 400){
-//            System.out.println("\nSending 'GET' request to URL : " + url);
-//            System.out.println("Response Code : " + responseCode);              
-//
-//            BufferedReader in = new BufferedReader(
-//                    new InputStreamReader(con.getInputStream()));
-//            String inputLine;
-//            StringBuffer response = new StringBuffer();
-//
-//            while ((inputLine = in.readLine()) != null) {
-//                    response.append(inputLine);
-//            }
-//            in.close();
-//            JSONObject objetoJSON =new JSONObject(response.toString());
-//            System.out.println(objetoJSON.toString());
-//            return String.valueOf(objetoJSON);
-//        }else{
-//            return null;
-//        }
+    	WsConsultaProxy wsProxy = new WsConsultaProxy();
+    	return wsProxy.patterToSearch(patternToSeach);
     }
     
     
-    public void parse(InputStream inputStream) throws IOException, JsonLdError {
-    		Object frame = JsonUtils.fromInputStream(inputStream);
+    public static void parse(InputStream inputStream) throws IOException, JsonLdError {
+    	Object frame = JsonUtils.fromInputStream(inputStream);
     		
     		if (frame instanceof Map) {
-    			Map<String, Object> a = (Map<String, Object>) frame;
+    			
+				Map<String, Object> a = (Map<String, Object>) frame;
     			
     			for (Entry<String, Object> entry : a.entrySet()) {
         		    String key = entry.getKey();
@@ -121,6 +64,12 @@ public class CKANGeografia {
         		    for (Object l : jo){
         		    	Map<String, Object> k = (Map<String, Object>) l;
         		    	for (Entry<String, Object> s: k.entrySet()) {
+        		    		System.out.println(s.getKey()+" "+s.getValue());
+        		    		
+        		    		if (s.getKey().contentEquals("id")){
+        		    			System.out.println("ASI SI!!! "+s.getValue());
+        		    		}
+        		    		
         		    		if (s.getKey().contentEquals("http://www.geonames.org/ontology#name")){
         		    			System.out.println("ASI SI!!! "+s.getValue());
         		    		}
@@ -185,7 +134,7 @@ public class CKANGeografia {
     
     
     
-    private Set<String> findMappedPredicates(Object node) {
+    private static Set<String> findMappedPredicates(Object node) {
         Set<String> mappedPredicates = new TreeSet<String>();
         if (node instanceof Map) {
           Map<String, Object> map = (Map<String, Object>) node;
@@ -201,7 +150,7 @@ public class CKANGeografia {
         return mappedPredicates;
       }
     
-    private int findPivots(Object node, Map<Integer, Set<String>> pivotsByRank) {
+    private static int findPivots(Object node, Map<Integer, Set<String>> pivotsByRank) {
         if (node instanceof Map) {
           int maxRank = -1;
           if (!((Map<String, Object>) node).isEmpty()) {
@@ -218,7 +167,7 @@ public class CKANGeografia {
                 pivots.add(entry.getKey());
               }
               maxRank = Math.max(maxRank, subRank);
-              this.maxRank = Math.max(maxRank, this.maxRank);
+              //this.maxRank = Math.max(maxRank, this.maxRank);
             }
             maxRank++;
           }
@@ -228,7 +177,7 @@ public class CKANGeografia {
           for (Object element : (List<Object>) node) {
             int subRank = findPivots(element, pivotsByRank);
             maxRank = Math.max(maxRank, subRank);
-            this.maxRank = Math.max(maxRank, this.maxRank);
+            //this.maxRank = Math.max(maxRank, this.maxRank);
           }
           return maxRank;
         } else {
@@ -239,7 +188,10 @@ public class CKANGeografia {
     public static void main(String[] args) {
         CKANGeografia ckanq= new CKANGeografia();
         try {
-            System.out.println(ckanq.queryOnRepository("Colombia"));
+        	InputStream inputStream = new FileInputStream("/tmp/json-ld.txt");
+        	
+        	parse(inputStream);
+        	
         } catch (Exception ex) {
             Logger.getLogger(CKANGeografia.class.getName()).log(Level.SEVERE, null, ex);
         }
