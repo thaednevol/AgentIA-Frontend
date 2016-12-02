@@ -34,4 +34,11 @@ public class RestToCkan {
 		return listaCkan;
 	}
 
+	public static List<CkanDataset> parseEducacion(String a) {
+		
+		System.out.println("Respuesta de Cristian "+a);
+		
+		return null;
+	}
+
 }

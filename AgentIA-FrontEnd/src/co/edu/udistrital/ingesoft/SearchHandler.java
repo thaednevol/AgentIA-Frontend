@@ -35,15 +35,23 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 
 	private HttpServletResponse response;
 	private HttpServletRequest request;
+	
+	static void inicializar(){
+//		 System.setProperty("http.proxyHost", "172.31.239.53");
+//	        System.setProperty("http.proxyPort", "3128");
+//	        System.setProperty("https.proxyHost", "172.31.239.53");
+//	        System.setProperty("https.proxyPort", "3128");
+	}
 
 	private final Queue<CkanDataset> queue = new ConcurrentLinkedQueue<CkanDataset>();
 
 	private String contextPath = null;
 	private final AtomicInteger counter = new AtomicInteger();
-	
-	private ArrayList al = new ArrayList();
+
+	private ArrayList<CkanDataset> resultados = new ArrayList<CkanDataset>();
 
 	public void onInitialize(CometEvent event) throws IOException {
+		
 	}
 
 	public void onInterrupt(CometEvent event) throws IOException {
@@ -66,9 +74,12 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 
 	@Override
 	public void onEvent(CometEvent event) throws IOException {
+		SSLUtilities.trustAllHostnames();
+		SSLUtilities.trustAllHttpsCertificates();
 		//
 
-		System.out.println("LLAMA ONEVENT " + event.getType()+" "+request.getSession().getId()+" "+request.getMethod());
+		System.out.println(
+				"LLAMA ONEVENT " + event.getType() + " " + request.getSession().getId() + " " + request.getMethod());
 
 		//
 		// try {
@@ -90,12 +101,11 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 
 		if ("GET".equals(request.getMethod())) {
 			if (!queue.isEmpty()) {
-				
+
 				sendMsg(null, null);
-				
+
 			}
-		}
-		else if ("POST".equals(request.getMethod())) {
+		} else if ("POST".equals(request.getMethod())) {
 			final String message = request.getParameter("notification");
 
 			if (message != null) {
@@ -124,7 +134,7 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 				try {
 					request.getRequestDispatcher("buscar.jsp").forward(request, response);
 					event.getCometContext().resumeCometHandler(this);
-					
+
 				} catch (ServletException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -132,7 +142,6 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 			}
 
 		}
-
 
 		//
 		// PrintWriter writer;
@@ -168,9 +177,18 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 	public void buscar(String username, String busqueda, String lugar) {
 		System.out.println("Buscar " + busqueda + " para el usuario: " + username);
 
-		if (lugar.contains("geografia")) {
+		if (lugar.contains("geografia")) {//JULIAN http://ec2-35-162-125-10.us-west-2.compute.amazonaws.com:8080/WsConsulta/wsConsulta?wsdl
 			System.out.println("Buscar 2" + lugar);
-
+			
+			CKANGeografia ckanGeografia = new CKANGeografia();
+			
+			try {
+				ckanGeografia.queryOnRepository(busqueda);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			CKANQuery ckanq = new CKANQuery();
 			try {
 				String a = ckanq.queryOnRepository(busqueda);
@@ -179,136 +197,155 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 				for (int i = 0; i < rtd.size(); i++) {
 					// sendMsg(username, rtd.get(i));
 					queue.offer(rtd.get(i));
-					System.out.println("AGREGA A LA COLA "+rtd.get(i).getId());
+					System.out.println("AGREGA A LA COLA " + rtd.get(i).getId());
 				}
 			} catch (Exception ex) {
 				Logger.getLogger(CKANQuery.class.getName()).log(Level.SEVERE, null, ex);
 			}
+			
+			
+			
+			
 		} else if (lugar.contains("gobierno")) {
 			// String BASE_DATASET_API = "https://datahub.io/dataset/";
 			// CkanClient cc = new CkanClient(BASE_DATASET_API);
-		}
-		else if (lugar.contains("educacion")) {
+			
 			// String BASE_DATASET_API = "https://datahub.io/dataset/";
-			// CkanClient cc = new CkanClient(BASE_DATASET_API);
-			
-			
+						// CkanClient cc = new CkanClient(BASE_DATASET_API);
+			//http://dati.trentino.it
+						CkanClient cc = new CkanClient("http://datahub.io/");
+						CkanQuery query = CkanQuery.filter().byText(busqueda);
+						List<CkanDataset> filteredDatasets = cc.searchDatasets(query, 100, 0).getResults();
+
+						System.out.println("CKAN DATASETS: " + filteredDatasets.size());
+
+						for (CkanDataset d : filteredDatasets) {
+
+							CkanDataset cdg = (CkanDataset) d;
+
+							queue.offer(cdg);
+
+							if (d.getResources().size() > 0) {
+
+								boolean av = false;
+
+								for (CkanResource res : d.getResources()) {
+
+									// sendMsg(username, cdg);
+									// queue.add(cdg);
+
+									// try {
+									// URL u = new URL(res.getUrl());
+									// HttpURLConnection huc = (HttpURLConnection)
+									// u.openConnection();
+									//// huc.setConnectTimeout(20000);
+									//// huc.setReadTimeout(20000);
+									// huc.setRequestMethod("GET"); // OR
+									// huc.setRequestMethod
+									// // ("HEAD");
+									// huc.connect();
+									// int code = huc.getResponseCode();
+									//
+									// if (code == 200) {
+									// av = true;
+									// }
+									// } catch (Exception e) {
+									// e.printStackTrace();
+									// }
+								}
+
+								if (av) {
+
+								}
+
+							}
+						}
+
+
+		} else if (lugar.contains("educacion")) {//CRISTIAN Y GABRIEL
+			System.out.println("Buscar 2" + lugar);
+
+			CKANEducacion ckanq = new CKANEducacion();
+			try {
+				String a = ckanq.queryOnRepository(busqueda);
+				//List<CkanDataset> rtd = RestToCkan.parse(a);
+				List<CkanDataset> rtd = RestToCkan.parseEducacion(a);
+
+				for (int i = 0; i < rtd.size(); i++) {
+					// sendMsg(username, rtd.get(i));
+					queue.offer(rtd.get(i));
+					System.out.println("AGREGA A LA COLA " + rtd.get(i).getId());
+				}
+			} catch (Exception ex) {
+				Logger.getLogger(CKANQuery.class.getName()).log(Level.SEVERE, null, ex);
+			}
+
 		}
 
 		else {
-			CkanClient cc = new CkanClient(lugar);
-			CkanQuery query = CkanQuery.filter().byText(busqueda);
-			List<CkanDataset> filteredDatasets = cc.searchDatasets(query, 100, 0).getResults();
-
-			System.out.println("CKAN DATASETS: " + filteredDatasets.size());
-
-			for (CkanDataset d : filteredDatasets) {
-
-				CkanDataset cdg = (CkanDataset) d;
-
-				queue.offer(cdg);
-
-				if (d.getResources().size() > 0) {
-
-					boolean av = false;
-
-					for (CkanResource res : d.getResources()) {
-
-						// sendMsg(username, cdg);
-						// queue.add(cdg);
-
-						// try {
-						// URL u = new URL(res.getUrl());
-						// HttpURLConnection huc = (HttpURLConnection)
-						// u.openConnection();
-						//// huc.setConnectTimeout(20000);
-						//// huc.setReadTimeout(20000);
-						// huc.setRequestMethod("GET"); // OR
-						// huc.setRequestMethod
-						// // ("HEAD");
-						// huc.connect();
-						// int code = huc.getResponseCode();
-						//
-						// if (code == 200) {
-						// av = true;
-						// }
-						// } catch (Exception e) {
-						// e.printStackTrace();
-						// }
-					}
-
-					if (av) {
-
-					}
-
-				}
-			}
-
+			
 		}
 
 	}
 
 	private void sendMsg(String username, CkanDataset ckanDataset) throws IOException {
-		
+
 		while (!queue.isEmpty()) {
 			try {
 				CkanDataset cd = queue.peek();
-				al.add(cd);
+				resultados.add(cd);
 				queue.remove(cd);
 			} catch (Exception e) {
 				System.out.println("freaking error");
 				e.printStackTrace();
 			}
 		}
-		
-		PrintWriter writer= response.getWriter();
-		
+
+		PrintWriter writer = response.getWriter();
+
 		Gson gson = new Gson();
-		writer.write(gson.toJson(al));
+		
+		Respuesta r = new Respuesta();
+		r.setError("0");
+		r.setResultados(resultados);
+		
+		writer.write(gson.toJson(r));
 		writer.flush();
-		
-		
-		
-			// writer.write("<script type='text/javascript'>" +
-			// "parent.counter.updateCount('" + i + "')" +
-			// "</script>\n");
 
-			// writer.write("<script type='text/javascript'>"
-			// + "console.log('" + username + "')"+
-			// "</script>\n");
-			
-		//	String s = "";
+		// writer.write("<script type='text/javascript'>" +
+		// "parent.counter.updateCount('" + i + "')" +
+		// "</script>\n");
 
-			// for (Object msg : datasetsEncontrados.get(sessId)) {
-			// String txt="";
-			// if (msg instanceof CkanDataset){
-			// Gson gson = new Gson();
-			// txt=gson.toJson((CkanDataset)msg);
-			// }
-			//
-			// s += txt + ", ";
-			// }
-			//
-			// s = s.substring(0, s.length() - 2);
-		//	Gson gson = new Gson();
-		//	String txt = gson.toJson(ckanDataset);
-		//	s += txt;
-		//	s += "";	
+		// writer.write("<script type='text/javascript'>"
+		// + "console.log('" + username + "')"+
+		// "</script>\n");
 
-			
-			
-		//	writer.write("[" + s + "],");
-			
-			
-			
-			//writer.flush();
-			
-			
-			
-			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType("application/json");
-			
-			//System.out.println("ENVIA ESTE MENSAJE "+s);
+		// String s = "";
+
+		// for (Object msg : datasetsEncontrados.get(sessId)) {
+		// String txt="";
+		// if (msg instanceof CkanDataset){
+		// Gson gson = new Gson();
+		// txt=gson.toJson((CkanDataset)msg);
+		// }
+		//
+		// s += txt + ", ";
+		// }
+		//
+		// s = s.substring(0, s.length() - 2);
+		// Gson gson = new Gson();
+		// String txt = gson.toJson(ckanDataset);
+		// s += txt;
+		// s += "";
+
+		// writer.write("[" + s + "],");
+
+		// writer.flush();
+
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.setContentType("application/json");
+
+		// System.out.println("ENVIA ESTE MENSAJE "+s);
 	}
 
 	@Override
@@ -345,3 +382,6 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 	}
 
 }
+
+
+//TESTS

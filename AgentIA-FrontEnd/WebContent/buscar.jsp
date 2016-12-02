@@ -26,11 +26,10 @@
 		<form action="" >
 		<input type="text" name="busqueda" id="busqueda">
 		<div id="botones">
-		<input type="button" class="botones" value="Buscar Geografía" onclick=formSubmit(0)>
-		<input type="button" class="botones" value="Buscar http://demo.ckan.org/" onclick=formSubmit(1)>
-		<input type="button" class="botones" value="Buscar http://catalog.data.gov/" onclick=formSubmit(2)>
-		<input type="button" class="botones" value="Buscar https://datahub.io/" onclick=formSubmit(3)>
-		<input type="button" class="botones" value="Educacion" onclick=formSubmit(4)>
+		<input type="button" class="botones" value="Geografía" onclick=formSubmit(0)>
+		<input type="button" class="botones" value="Educación" onclick=formSubmit(1)>
+		<input type="button" class="botones" value="Gobierno" onclick=formSubmit(2)>
+		
 		</div> 
 	</form>
 	</div>

@@ -15,14 +15,10 @@ function formSubmit(tipo) {
 	if (tipo === 0) {
 		buscar(busqueda, "geografia");
 	} else if (tipo === 1) {
-		buscar(busqueda, "http://demo.ckan.org/");
-	} else if (tipo == 2) {
-		buscar(busqueda, "http://catalog.data.gov/");
-	} else if (tipo == 3) {
-		buscar(busqueda, "gobierno");
-	} else if (tipo == 4) {
 		buscar(busqueda, "educacion");
-	}
+	} else if (tipo == 2) {
+		buscar(busqueda, "gobierno");
+	} 
 }
 
 function showResults() {
@@ -85,11 +81,18 @@ function buscarResultados(repeat) {
 		//dataType : 'json',
 		async:true,
 		success : function(data) {
-			console.log("PIDE DATOS "+data);
+			var respuesta = JSON.parse(data);
 			
-			$('#content').append(
-					'<div class="accordion-title"><p>' + data
-							+ '</p></div>');
+			for (i=0; i<respuesta.resultados.length; i++){
+				$('#content').append(
+						'<div class="accordion-title"><p>' + respuesta.resultados[i].title
+								+ '</p></div>');
+				console.log(respuesta.resultados[i]);
+			}
+			
+			console.log(respuesta);
+			
+			
 			
 
 //			var obj = data;
