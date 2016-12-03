@@ -109,7 +109,9 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 			final String message = request.getParameter("notification");
 
 			if (message != null) {
-
+				queue.clear();
+				resultados.clear();
+				
 				final String username = request.getSession().getId();
 
 				Thread thread = new Thread() {

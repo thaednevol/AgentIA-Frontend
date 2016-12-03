@@ -2,11 +2,13 @@ package co.edu.udistrital.ingesoft;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.ReadOnlyFileSystemException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
 import com.google.gson.JsonObject;
 
+import eu.trentorise.opendata.jackan.model.CkanDataset;
 import ws.WsConsultaProxy;
 import ws.WsConsulta_ServiceLocator;
 
@@ -188,12 +191,36 @@ public class CKANGeografia {
     public static void main(String[] args) {
         CKANGeografia ckanq= new CKANGeografia();
         try {
-        	InputStream inputStream = new FileInputStream("/tmp/json-ld.txt");
+        	//InputStream inputStream = new FileInputStream("/tmp/json-ld.txt");
+        	String respuesta = readFile("/tmp/json-ld.txt");
         	
-        	parse(inputStream);
+        	List<CkanDataset> rtd = RestToCkan.parseGeografia(respuesta);
+			for (int i = 0; i < rtd.size(); i++) {
+				System.out.println("AGREGA A LA COLA " + rtd.get(i).getId());
+			}
+        	
+        	System.out.println("RESPUESTA: "+respuesta);
         	
         } catch (Exception ex) {
             Logger.getLogger(CKANGeografia.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private static String readFile(String file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader (file));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+
+            return stringBuilder.toString();
+        } finally {
+            reader.close();
         }
     }
 }
