@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
+
+import eu.trentorise.opendata.jackan.model.CkanDataset;
 
 /**
  *
@@ -51,7 +54,15 @@ public class CKANEducacion {
     public static void main(String[] args) {
         CKANEducacion ckanq= new CKANEducacion();
         try {
-            System.out.println(ckanq.queryOnRepository("computer"));
+        	String str = ckanq.queryOnRepository("computer");
+        	
+        	List<CkanDataset> rtd = RestToCkan.parseEducacion(str);
+        	
+        	for (int i = 0; i < rtd.size(); i++) {
+				System.out.println("AGREGA A LA COLA " + rtd.get(i).getId());
+			}
+        	
+        	System.out.println();
         } catch (Exception ex) {
             Logger.getLogger(CKANEducacion.class.getName()).log(Level.SEVERE, null, ex);
         }

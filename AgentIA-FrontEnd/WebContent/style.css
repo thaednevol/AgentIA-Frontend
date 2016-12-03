@@ -75,5 +75,30 @@ body {
 }
 
 .title {
-	font-size:30px;
+	font-size:20px;
+}
+
+.item {
+	border-radius: 10px;
+    background: rgba(236,244,249,0.5);
+    padding: 10px;
+    margin: 5px;
+}
+
+.item:hover{
+	cursor: pointer;
+	-webkit-transition: width 1s; /* For Safari 3.1 to 6.0 */
+    transition: width 1s;
+    background: rgba(236,244,249,1.0);	
+}
+
+.datosRelevantes{
+	font-size:15px;
+	margin:5px;
+}
+
+.wait{
+	display: flex;
+    justify-content: center;
+    font-size:20px;
 }

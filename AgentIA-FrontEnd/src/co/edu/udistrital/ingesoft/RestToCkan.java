@@ -46,11 +46,28 @@ public class RestToCkan {
 		return listaCkan;
 	}
 
-	public static List<CkanDataset> parseEducacion(String a) {
-
-		System.out.println("Respuesta de Cristian " + a);
-
-		return null;
+	public static List<CkanDataset> parseEducacion(String jsonString) {
+		List<CkanDataset> resultList = new ArrayList<>();
+		JsonParser parser = new JsonParser();
+		JsonObject jo = parser.parse(jsonString).getAsJsonObject();
+		
+		JsonArray ja = jo.getAsJsonArray("data");
+		
+		for (int i=0; i<ja.size(); i++){
+			
+			System.out.println("jasize"+ja.get(i));
+			CkanDataset ckanDataset = new CkanDataset();
+			JsonArray res = ja.get(i).getAsJsonArray();
+			ckanDataset.setTitle(res.get(0).getAsString());
+			ckanDataset.setUrl(res.get(1).getAsString());
+			
+			String id = res.get(1).getAsString();
+			byte[] encodedBytes = Base64.encodeBase64(id.getBytes());
+			ckanDataset.setId(new String(encodedBytes));
+			
+			resultList.add(ckanDataset);
+		}
+		return resultList;
 	}
 
 	public static List<CkanDataset> parseGeografia(String jsonString) throws JsonParseException, IOException {
@@ -83,12 +100,10 @@ public class RestToCkan {
 					
 					for (Entry<String, Object> nodo : mItem.entrySet()) {
 						
-						System.out.println("NODO!!! "+nodo.getKey());
-						
 						if (nodo.getKey().contentEquals("id")) {
 							String id = (String) nodo.getValue();
-							//byte[] encodedBytes = Base64.encodeBase64(id.getBytes());
-							//ckanDataset.setId(new String(encodedBytes));
+							byte[] encodedBytes = Base64.encodeBase64(id.getBytes());
+							ckanDataset.setId(new String(encodedBytes));
 							ckanDataset.setName(id);
 						}
 						if (nodo.getKey().contentEquals("http://www.geonames.org/ontology#name")) {
@@ -215,14 +230,13 @@ public class RestToCkan {
 					}
 					Gson gson = new Gson();
 					ckanResource.setDescription(gson.toJson(position));
+					String id = ckanDataset.toString().split("@")[1];
+					ckanDataset.setCreatorUserId(id);
 					
 					ckanResources.add(ckanResource);
 					
 					ckanDataset.setResources(ckanResources);
 					
-					String id = ckanDataset.toString().split("@")[1];
-					
-					ckanDataset.setId(id);
 					
 					resultList.add(ckanDataset);
 				}

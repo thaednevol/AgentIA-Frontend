@@ -24,7 +24,7 @@
 	
 	<div id="formWrapper">
 		<form action="" >
-		<input type="text" name="busqueda" id="busqueda">
+		<input type="text" name="busqueda" id="busqueda"  maxlength="50">
 		<div id="botones">
 		<input type="button" class="botones" value="Geografía" onclick=formSubmit(0)>
 		<input type="button" class="botones" value="Educación" onclick=formSubmit(1)>
