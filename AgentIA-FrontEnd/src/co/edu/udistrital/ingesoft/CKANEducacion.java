@@ -21,7 +21,10 @@ public class CKANEducacion {
     private final String URL = "http://104.236.16.165:8000/education/api/?keyword=";
     
     public String queryOnRepository(String patternToSeach) throws Exception{
-        String url = URL+patternToSeach;
+    	String encodedURL=java.net.URLEncoder.encode(patternToSeach,"UTF-8");
+    	String url = URL+encodedURL;
+        
+
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");

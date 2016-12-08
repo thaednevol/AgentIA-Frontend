@@ -102,3 +102,32 @@ body {
     justify-content: center;
     font-size:20px;
 }
+
+.notfound{
+	display: flex;
+    justify-content: center;
+    font-size:20px;
+}
+
+#imagenNotfound{
+	
+}
+
+.notes {
+	font-style: italic;
+	font-size:12px;
+}
+
+.metadataCreated, .metadataModified {
+	float:right;
+}
+
+.description {
+	margin: 5px;
+	font-size: 14px;
+	color: #666;
+}
+
+.adjunto {
+	float: right;
+}

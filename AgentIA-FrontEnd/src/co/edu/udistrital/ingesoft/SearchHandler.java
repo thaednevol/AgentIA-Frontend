@@ -152,13 +152,12 @@ public class SearchHandler implements CometHandler<HttpServletResponse> {
 		} else if (lugar.contains("gobierno")) {
 
 			CkanClient cc = new CkanClient("http://datahub.io/");
-			CkanQuery query = CkanQuery.filter().byText(busqueda).byTagNames("government");
+			CkanQuery query = CkanQuery.filter().byText(busqueda);
 			List<CkanDataset> filteredDatasets = cc.searchDatasets(query, 100, 0).getResults();
 
 			System.out.println("CKAN DATASETS: " + filteredDatasets.size());
 
 			for (CkanDataset d : filteredDatasets) {
-
 				CkanDataset cdg = (CkanDataset) d;
 
 				queue.offer(cdg);

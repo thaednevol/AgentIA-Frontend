@@ -173,27 +173,40 @@ public class RestToCkan {
 							
 						}
 						if (nodo.getKey().contentEquals("http://www.geonames.org/ontology#alternateName")) {
-							List<Map<String, Object>> alternateName = (ArrayList<Map<String, Object>>)nodo.getValue();
-							
-							String str = "";
-							String temp = "";
-							
-							for (Map<String, Object> a : alternateName){
-								if (a.get("@language").toString().contentEquals("es")){
-									str=a.get("@value").toString();
+							if (nodo.getValue() instanceof ArrayList){
+								List<Map<String, Object>> alternateName = (ArrayList<Map<String, Object>>)nodo.getValue();
+								
+								String str = "";
+								String temp = "";
+								
+								for (Map<String, Object> a : alternateName){
+									if (a.get("@language").toString().contentEquals("es")){
+										str=a.get("@value").toString();
+									}
+									if (a.get("@language").toString().contentEquals("en")){
+										temp=a.get("@value").toString();
+									}
 								}
-								if (a.get("@language").toString().contentEquals("en")){
-									temp=a.get("@value").toString();
+								if (str.contentEquals("")){
+									CkanPair ckanPair = new CkanPair("alternateName", temp);
+									extras.add(ckanPair);
+								}
+								else {
+									CkanPair ckanPair = new CkanPair("alternateName", str);
+									extras.add(ckanPair);
 								}
 							}
-							if (str.contentEquals("")){
-								CkanPair ckanPair = new CkanPair("alternateName", temp);
+							if (nodo.getValue() instanceof LinkedHashMap){
+								System.out.println("LinkedHashMap GEOGRAFIA");
+								System.out.println(nodo.getValue());
+								
+								Map<String, Object> alternateName = (Map<String, Object>) nodo.getValue();
+								CkanPair ckanPair = new CkanPair("alternateName", (String) alternateName.get("@value"));
 								extras.add(ckanPair);
 							}
-							else {
-								CkanPair ckanPair = new CkanPair("alternateName", str);
-								extras.add(ckanPair);
-							}
+							
+							
+							
 							
 							
 						}

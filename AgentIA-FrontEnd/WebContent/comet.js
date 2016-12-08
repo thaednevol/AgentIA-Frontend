@@ -4,7 +4,7 @@ var refreshIntervalId;
 
 var elementosEncontrados = [];
 
-var t0, t1;
+var t0, t1, tiempoTotal;
 
 var tipoBusqueda;
 
@@ -30,14 +30,14 @@ function showResults() {
 	$('#content').accordion();
 	
 	var html = '<div class="wait">';
-	html += '<iframe src="//giphy.com/embed/LGw9wBFdmYSDm" width="480" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>';
+	html += '<iframe src="images/giphy-downsized-large.gif" width="480" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>';
 	html += '</div>';
 	
 	html += '<div class="wait"><p>Por favor, espere. Estamos haciendo lo mejor que podemos</p></div>';
 	
 	$("#content").append(html);
 }
-
+	
 function buscar(busqueda, tipo) {
 	
 	tipoBusqueda=tipo;
@@ -60,8 +60,10 @@ function buscar(busqueda, tipo) {
 			notification : envio
 		},
 		success : function(data) {
+			
 			// console.log("DATA DE AJAX: "+data);
 			t1 = performance.now();
+			tiempoTotal = performance.now();
 
 			console.log("Call to doSomething took " + (t1 - t0)
 					+ " milliseconds.")
@@ -82,10 +84,16 @@ function buscarResultados(repeat) {
 		// dataType : 'json',
 		async : true,
 		success : function(data) {
+			tiempoTotal = performance.now();
+			
+			console.log(tiempoTotal-t1);
+			
+			
+
 			if (data) {
 				var respuesta = JSON.parse(data);
 				for (i = 0; i < respuesta.resultados.length; i++) {
-					
+					t1=performance.now();
 					$(".wait").hide();
 					
 					var resultado = respuesta.resultados[i];
@@ -112,7 +120,13 @@ function buscarResultados(repeat) {
 							html += '<img src="images/rdf-xml-128.png" alt="rdf xml" height="42" width="42">';
 						}
 						if (tipoBusqueda=="gobierno"){
-							html += '<div>' + JSON.stringify(resultado)+ '</div>';
+							if (resultado.resources){
+								if (resultado.resources.length>0){
+									html += '<div class="adjunto"><img src="images/attachment-icon.png" alt="zip" height="12" width="12"></div>';
+								}
+								
+							}
+							//html += '<div>' + JSON.stringify(resultado)+ '</div>';
 						}
 						
 						html += '<div class="title"><p>' + title+ '</p></div>';
@@ -145,6 +159,10 @@ function buscarResultados(repeat) {
 				}
 
 			}
+			
+			if ((tiempoTotal-t1)>120000){
+				cancelar();
+			}
 
 			// console.log(respuesta);
 		},
@@ -176,7 +194,30 @@ function nuevaBusqueda() {
 	$("#formWrapper").show();
 	$("#sfbg").hide();
 	$("#content").empty();
+	elementosEncontrados = [];
 	clearInterval(refreshIntervalId);
+}
+
+function cancelar(){
+	clearInterval(refreshIntervalId);
+	console.log(elementosEncontrados);
+	console.log(elementosEncontrados.length);
+	if (elementosEncontrados.length >0){
+		
+	}
+	else {
+		var html = '<div class="notfound"><p>No pudimos encontrar nada, pero...</p></div>';
+		html += '<div class="notfound">';
+		html += '<img height="320" width="320" src="images/mom.jpg"/>';
+		html += '</div>';
+		
+		html += '';
+		
+		$(".wait").hide();
+		
+		$("#content").append(html);
+	}
+	
 }
 
 function setHtml(item) {
@@ -213,14 +254,97 @@ function setHtml(item) {
 	}
 	else if (tipoBusqueda==="gobierno"){
 		if (contenido.children().length == 0){
-			var html = "<div class='resources'>";
 			
-			for (var i=0; i<200; i++){
-				html += '<img src="images/rdf-xml-128.png" alt="rdf xml" height="42" width="42">';
+			console.log("ENTRA!!!");
+			
+//			if(datos.organization){
+//				if (datos.organization.imageUrl){
+//					var html = '<div class="imageUrl">';
+//					html += '<img src="'+datos.organization.imageUrl+'" alt="image" height="42" width="42">';
+//					html += '</div>';
+//					
+//					contenido.append(html);
+//				}
+//				
+//			}
+//			
+			
+			if(datos.organization){
+				if (datos.organization.description){
+					var html = '<div class="description">';
+					html += datos.organization.description;
+					html += '</div>';
+					
+					contenido.append(html);
+				}
+				
 			}
-			html += "</div>";
 			
-			contenido.append(html);
+			
+			
+			if(datos.notes){
+				var html = '<div class="notes">';
+				html += 'Notas: ';
+				html += datos.notes;
+				html += '</div>';
+				
+				contenido.append(html);
+			}
+			
+			
+			if (datos.resources){
+				if (datos.resources.length>0){
+					var html = "<div class='resources'>";
+					
+					for (var i=0; i<datos.resources.length; i++){
+						var resource = datos.resources[i];
+						
+						console.log(resource.format+" "+resource.url);
+						
+						if (resource.format==="CSV" || resource.format==="csv"){
+							html += '<a href="'+resource.url+'"><img src="images/png/csv-file-format-symbol.png" alt="csv" height="42" width="42"></a>';
+						}
+						else if (resource.format==="PDF" || resource.format==="pdf"){
+							html += '<a href="'+resource.url+'"><img src="images/png/pdf-file-format-symbol.png" alt="csv" height="42" width="42"></a>';
+						}
+						else if (resource.format==="XLS" || resource.format==="xls" || resource.format==="xlsx" || resource.format==="XLSX"){
+							html += '<a href="'+resource.url+'"><img src="images/png/xls-file-format-symbol.png" alt="csv" height="42" width="42"></a>';
+						}
+						else if (resource.format==="ZIP" || resource.format==="zip"){
+							html += '<a href="'+resource.url+'"><img src="images/png/zip-file.png" alt="zip" height="42" width="42"></a>';
+						}
+						else if (resource.format==="png" || resource.format==="PNG"){
+							html += '<a href="'+resource.url+'"><img src="'+resource.url+'" alt="zip" height="42" width="42"></a>';
+						}
+						else{
+							html += '<a href="'+resource.url+'"><img src="images/png/demon.png" alt="zip" height="42" width="42"></a>';
+						}
+					}
+					html += "</div>";
+					
+					contenido.append(html);
+				}
+				
+			}
+			
+			if(datos.metadataModified){
+				var html = '<div class="metadataModified">';
+				html += '&nbsp;Modificado: ';
+				html += datos.metadataModified;
+				html += '</div>';
+				
+				contenido.append(html);
+			}
+			
+			if(datos.metadataCreated){
+				var html = '<div class="metadataCreated">';
+				html += ' Creado: ';
+				html += datos.metadataCreated;
+				html += '</div>';
+				
+				contenido.append(html);
+			}
+			
 			
 		}
 		else {
